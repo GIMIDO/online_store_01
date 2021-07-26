@@ -1,15 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-        <section class="">
-            <div class="container px-4 px-lg-5 my-3">
+        <section class="mt-5">
+            <div class="container px-4 my-3">
                 <div class="row gx-4 gx-lg-5 align-items-top">
-                        <nav aria-label="breadcrumb mr-2 " class="mt-2">
-                          <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="{% url 'base' %}">Главная</a></li>
-                            <li class="breadcrumb-item"><a href="{{ clothes.category.get_absolute_url }}">{{ clothes.category.name }}</a></li>
-                            <li class="breadcrumb-item active" aria-current="page">{{ clothes.title }}</li>
-                          </ol>
-                        </nav>
                     <div class="col-md-6"><img class="card-img-top mb-0 mb-md-0" src="{{ clothes.image.url }}" alt="..." /></div>
                     <div class="col-md-6">
                         <h1 class="display-5 fw-bolder">{{ clothes.title }}</h1>
