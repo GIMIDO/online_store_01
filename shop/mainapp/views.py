@@ -6,9 +6,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 
-from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, Cart, CartProduct, Order
+from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, Cart, CartProduct, Order, Clothes
 from .mixins import CategoryDetailMixin, CartMixin
-from .forms import OrderForm, LoginForm, RegistrationForm
+from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm
 from .utils import recalc_cart
 
 
@@ -19,7 +19,7 @@ class BaseView(CartMixin, View):
         context = {
             'categories': categories,
             'all_clothes': clothes,
-            'cart' : self.cart
+            'cart': self.cart
         }
         return render(request, 'base.html', context)
 
@@ -59,6 +59,7 @@ class CategoryDetailView(CartMixin, CategoryDetailMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['cart'] = self.cart
         return context
+
 
 class AddToCartView(CartMixin, View):
     def get(self, request, *args, **kwargs):
@@ -106,7 +107,7 @@ class ChangeQTYView(CartMixin, View):
         return HttpResponseRedirect('/cart/')
 
 
-class CartView(CartMixin, View):
+class CartView(CartMixin, CategoryDetailMixin, View):
     def get(self, request, *args, **kwargs):
         categories = (Category.objects.get_categories_for_nav())
         context = {
@@ -116,7 +117,7 @@ class CartView(CartMixin, View):
         return render(request, 'cart.html', context)
 
 
-class CheckoutView(CartMixin, View):
+class CheckoutView(CartMixin, CategoryDetailMixin, View):
     def get(self, request, *args, **kwargs):
         categories = (Category.objects.get_categories_for_nav())
         form = OrderForm(request.POST or None)
@@ -128,7 +129,7 @@ class CheckoutView(CartMixin, View):
         return render(request, 'checkout.html', context)
 
 
-class MakeOrderView(CartMixin, View):
+class MakeOrderView(CartMixin, CategoryDetailMixin, View):
     @transaction.atomic
     def post(self, request, *args, **kwargs):
         form = OrderForm(request.POST or None)
@@ -153,11 +154,11 @@ class MakeOrderView(CartMixin, View):
         return HttpResponseRedirect('/checkout/')
 
 
-class LoginView(CartMixin, View):
+class LoginView(CartMixin, CategoryDetailMixin, View):
 
     def get(self, request, *args, **kwargs):
         form = LoginForm(request.POST or None)
-        categories = Category.objects.all()
+        categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
         return render(request, 'login.html', context)
 
@@ -174,10 +175,10 @@ class LoginView(CartMixin, View):
         return render(request, 'login.html', context)
 
 
-class RegistrationView(CartMixin, View):
+class RegistrationView(CartMixin, CategoryDetailMixin, View):
     def get(self, request, *args, **kwargs):
         form = RegistrationForm(request.POST or None)
-        categories = Category.objects.all()
+        categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
         return render(request, 'registration.html', context)
 
@@ -204,10 +205,111 @@ class RegistrationView(CartMixin, View):
         return render(request, 'registration.html', context)
 
 
-class ProfileView(CartMixin, View):
+class ProfileView(CartMixin, CategoryDetailMixin, View):
 
     def get(self, request, *args, **kwargs):
         client = Client.objects.get(user=request.user)
         orders = Order.objects.filter(client=client).order_by('-created_at')
-        categories = Category.objects.all()
+        categories = Category.objects.get_categories_for_nav()
         return render(request, 'profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
+
+
+class ClothesDelete(CartMixin, View):
+    def get(self, request, *args, **kwargs):
+        ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
+        content_type = ContentType.objects.get(model=ct_model)
+        product = content_type.model_class().objects.get(slug=clothes_slug)
+        product.delete()
+        messages.add_message(request, messages.INFO, "Товар удален из базы")
+        return HttpResponseRedirect('/category/{}/'.format(ct_model))
+
+
+class ShoesAddView(CartMixin, CategoryDetailMixin, View):
+    def get(self, request, *args, **kwargs):
+        form = AddShoesForm(request.POST or None)
+        categories = Category.objects.get_categories_for_nav()
+        context = {'form': form, 'categories': categories, 'cart': self.cart}
+        return render(request, 'add_shoes.html', context)
+
+    def post(self, request, *args, **kwargs):
+        form = AddShoesForm(request.POST or None, request.FILES)
+        if form.is_valid():
+            form.save()
+            Shoes.objects.create(
+                category=form.cleaned_data['category'],
+                title=form.cleaned_data['title'],
+                description=form.cleaned_data['description'],
+                price=form.cleaned_data['price'],
+                image=form.cleaned_data['image'],
+                color=form.cleaned_data['color'],
+                size=form.cleaned_data['size'],
+                outsole_material=form.cleaned_data['outsole_material'],
+                insole_material=form.cleaned_data['insole_material'],
+                inner_material=form.cleaned_data['inner_material'],
+                top_material=form.cleaned_data['top_material'],
+                brand=form.cleaned_data['brand'],
+                slug=form.cleaned_data['slug']
+            )
+            return HttpResponseRedirect('/')
+        context = {'form': form, 'cart': self.cart}
+        return render(request, 'add_shoes.html', context)
+
+
+class PantsAddView(CartMixin, CategoryDetailMixin, View):
+    def get(self, request, *args, **kwargs):
+        form = AddPantsForm(request.POST or None, request.FILES)
+        categories = Category.objects.get_categories_for_nav()
+        context = {'form': form, 'categories': categories, 'cart': self.cart}
+        return render(request, 'add_pants.html', context)
+
+    def post(self, request, *args, **kwargs):
+        form = AddPantsForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            Pants.objects.create(
+                category=form.cleaned_data['category'],
+                title=form.cleaned_data['title'],
+                description=form.cleaned_data['description'],
+                price=form.cleaned_data['price'],
+                image=form.cleaned_data['image'],
+                color=form.cleaned_data['color'],
+                length_inside=form.cleaned_data['length_inside'],
+                length_side=form.cleaned_data['length_side'],
+                bottom_width=form.cleaned_data['bottom_width'],
+                pattern=form.cleaned_data['pattern'],
+                claps=form.cleaned_data['claps'],
+                brand=form.cleaned_data['brand'],
+                slug=form.cleaned_data['slug']
+            )
+            return HttpResponseRedirect('/')
+        context = {'form': form, 'cart': self.cart}
+        return render(request, 'add_pants.html', context)
+
+
+class HoodieAddView(CartMixin, CategoryDetailMixin, View):
+    def get(self, request, *args, **kwargs):
+        form = AddHoodieForm(request.POST or None, request.FILES)
+        categories = Category.objects.get_categories_for_nav()
+        context = {'form': form, 'categories': categories, 'cart': self.cart}
+        return render(request, 'add_hoodie.html', context)
+
+    def post(self, request, *args, **kwargs):
+        form = AddHoodieForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            Hoodie.objects.create(
+                category=form.cleaned_data['category'],
+                title=form.cleaned_data['title'],
+                description=form.cleaned_data['description'],
+                price=form.cleaned_data['price'],
+                image=form.cleaned_data['image'],
+                color=form.cleaned_data['color'],
+                length=form.cleaned_data['length'],
+                length_sleeve=form.cleaned_data['length_sleeve'],
+                pattern=form.cleaned_data['pattern'],
+                brand=form.cleaned_data['brand'],
+                slug=form.cleaned_data['slug']
+            )
+            return HttpResponseRedirect('/')
+        context = {'form': form, 'cart': self.cart}
+        return render(request, 'add_hoodie.html', context)

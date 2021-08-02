@@ -86,7 +86,7 @@ class Clothes(models.Model):
 
     category = models.ForeignKey(Category, verbose_name='Категория', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, verbose_name='Наименование')
-    slug = models.SlugField(unique=True)
+    # slug = models.SlugField(unique=True)
     image = models.ImageField(verbose_name='Изображение', default=None)
     description = models.TextField(verbose_name='Описание', null=True)
     price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='Цена')

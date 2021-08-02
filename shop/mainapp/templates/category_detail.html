@@ -2,6 +2,7 @@
 
 
 {% block content %}
+        <head><title>{{ category.name }}</title></head>
         <header class="bg-dark py-1">
             <div class="container px-4 px-lg-5">
                 <div class="text-center text-white">
@@ -12,7 +13,14 @@
         </header>
     <section>
             <div class="container px-4 px-lg-5 mt-5">
-
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-dismissible fade show mb-5" role="alert">
+                        <strong>{{ message }}</strong>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
                 <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
                     {% for clothes in category_clothes %}
                     <div class="col mb-5">
@@ -28,7 +36,12 @@
                                 <div class="text-center"><a class="btn btn-outline-dark mt-auto" href="{{ clothes.get_absolute_url }}">Смотреть</a>
                             <a class="btn btn-outline-dark mt-2" href="{% url 'add_to_cart' ct_model=clothes.get_model_name slug=clothes.slug %}">
                                 Добавить в корзину
-                            </a></div>
+                            </a>
+<!--                                     ТЕСТОВОЕ УДАЛЕНИЕ ДЛЯ АДМИНА -->
+                                    {% if request.user.is_authenticated and request.user.is_superuser %}
+                                    <a class="btn btn-danger mt-2" href="{% url 'clothes_delete' ct_model=clothes.get_model_name slug=clothes.slug %}" onclick="location.reload()">Удалить</a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>

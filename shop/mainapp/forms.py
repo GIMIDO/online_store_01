@@ -1,6 +1,7 @@
 from django import forms
+from django.forms import ModelChoiceField
 from django.contrib.auth.models import User
-from .models import Order
+from .models import Order, Shoes, Pants, Category, Hoodie
 
 
 class OrderForm(forms.ModelForm):
@@ -15,7 +16,6 @@ class OrderForm(forms.ModelForm):
         fields = (
             'first_name', 'last_name', 'phone', 'address', 'buying_type', 'order_date', 'comment'
         )
-
 
 
 class LoginForm(forms.ModelForm):
@@ -83,4 +83,70 @@ class RegistrationForm(forms.ModelForm):
         confirm_password = self.cleaned_data['confirm_password']
         if password != confirm_password:
             raise forms.ValidationError('Пароли не совпадают')
+        return self.cleaned_data
+
+
+class AddShoesForm(forms.ModelForm):
+    category = ModelChoiceField(Category.objects.filter(slug='shoes'))
+
+    class Meta:
+        model = Shoes
+        fields = [
+            'category', 'title', 'image', 'description', 'price', 'color', 'size', 'outsole_material',
+            'insole_material', 'inner_material', 'top_material', 'brand', 'slug'
+        ]
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].label = 'Категория'
+
+    def clean(self):
+        return self.cleaned_data
+
+
+class AddPantsForm(forms.ModelForm):
+    category = ModelChoiceField(Category.objects.filter(slug='pants'))
+
+    class Meta:
+        model = Pants
+        fields = [
+            'category', 'title', 'image', 'description', 'price', 'color', 'length_inside', 'length_side',
+            'bottom_width', 'pattern', 'claps', 'brand', 'slug'
+        ]
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].label = 'Категория'
+
+    def clean(self):
+        return self.cleaned_data
+
+
+class AddHoodieForm(forms.ModelForm):
+    category = ModelChoiceField(Category.objects.filter(slug='hoodies'))
+
+    class Meta:
+        model = Hoodie
+        fields = [
+            'category', 'title', 'image', 'description', 'price', 'color', 'length', 'length_sleeve', 'pattern',
+            'brand', 'slug'
+        ]
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
+
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['category'].label = 'Категория'
+
+    def clean(self):
         return self.cleaned_data

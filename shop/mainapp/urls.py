@@ -12,7 +12,11 @@ from .views import (
     MakeOrderView,
     LoginView,
     RegistrationView,
-    ProfileView
+    ProfileView,
+    ClothesDelete,
+    ShoesAddView,
+    PantsAddView,
+    HoodieAddView
 )
 
 urlpatterns = [
@@ -28,5 +32,9 @@ urlpatterns = [
     path('login/', LoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page="/"), name='logout'),
     path('registration/', RegistrationView.as_view(), name='registration'),
-    path('profile/', ProfileView.as_view(), name='profile')
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('clothes-delete/<str:ct_model>/<str:slug>/', ClothesDelete.as_view(), name='clothes_delete'),
+    path('shoes-add/', ShoesAddView.as_view(), name='shoes_add'),
+    path('pants-add/', PantsAddView.as_view(), name='pants_add'),
+    path('hoodie-add/', HoodieAddView.as_view(), name='hoodie_add')
 ]

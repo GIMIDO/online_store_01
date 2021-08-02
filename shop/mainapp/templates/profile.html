@@ -17,9 +17,8 @@
       <thead>
         <th scope="col">Номер</th>
         <th scope="col">Статус</th>
-        <th scope="col">Товар</th>
         <th scope="col">Сумма</th>
-<!--        <th scope="col">ххх</th>-->
+        <th scope="col" class="w-50">Товар</th>
       </thead>
       <tbody>
         {% for order in orders %}
@@ -29,14 +28,11 @@
             <td>{{ order.cart.final_price }} BYN</td>
             <td>
               <ul>
-                {% for item in order.cart.products.all %}
-                  <li>{{ item.product.title }} / {{ item.qty }}</li>
+                {% for item in order.cart.clothes.all %}
+                  <li class="list-group-item">{{ item.content_object.title }} x {{ item.qty }}</li>
                 {% endfor %}
               </ul>
             </td>
-<!--            <td>-->
-<!--              <button class="btn btn-info">ххх</button>-->
-<!--            </td>-->
           </tr>
         {% endfor %}
       </tbody>

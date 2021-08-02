@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+{% if request.user.is_superuser %}
+<head><title>Добавить обувь</title></head>
+<div class="mt-5 mx-auto w-50 row">
+    <div class="">
+        <h3 class="text-center mb-3">Добавить обувь</h3>
+        <form action="{% url 'shoes_add' %}" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" class="btn btn-success" value="Добавить">
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
