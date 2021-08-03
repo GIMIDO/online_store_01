@@ -39,7 +39,8 @@
                             </a>
 <!--                                     ТЕСТОВОЕ УДАЛЕНИЕ ДЛЯ АДМИНА -->
                                     {% if request.user.is_authenticated and request.user.is_superuser %}
-                                    <a class="btn btn-danger mt-2" href="{% url 'clothes_delete' ct_model=clothes.get_model_name slug=clothes.slug %}" onclick="location.reload()">Удалить</a>
+
+                                    <a class="btn btn-danger mt-2" href="{% url 'clothes_delete' ct_model=clothes.get_model_name slug=clothes.slug %}">Удалить</a>
                                     {% endif %}
                                 </div>
                             </div>

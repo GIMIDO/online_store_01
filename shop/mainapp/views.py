@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.shortcuts import render
-from django.views.generic import DetailView, View,   UpdateView, DeleteView, CreateView, ListView  #
+from django.views.generic import DetailView, View,   UpdateView, CreateView  #
 from django.http import HttpResponseRedirect
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
@@ -258,4 +258,40 @@ class HoodieCreateView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Добавить худи'
+        return context
+
+
+class ShoesUpdateView(UpdateView):
+    model = Shoes
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddShoesForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Обновить обувь'
+        return context
+
+
+class PantsUpdateView(UpdateView):
+    model = Pants
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddPantsForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Обновить брюки'
+        return context
+
+
+class HoodieUpdateView(UpdateView):
+    model = Hoodie
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddHoodieForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Обновить худи'
         return context

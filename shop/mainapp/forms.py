@@ -97,7 +97,6 @@ class AddShoesForm(forms.ModelForm):
         ]
         widgets = {
             'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -119,7 +118,6 @@ class AddPantsForm(forms.ModelForm):
         ]
         widgets = {
             'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
-
         }
 
     def __init__(self, *args, **kwargs):
@@ -141,7 +139,6 @@ class AddHoodieForm(forms.ModelForm):
         ]
         widgets = {
             'image': forms.FileInput(attrs={'class': 'form-control', 'required': True})
-
         }
 
     def __init__(self, *args, **kwargs):
