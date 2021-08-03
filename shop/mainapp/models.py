@@ -17,7 +17,7 @@ def get_models_for_count(*model_names):
     return [models.Count(model_name) for model_name in model_names]
 
 
-# вывод 8 единиц одежды с возможностью выбора вывода определенных вещей первыми
+# вывод до 4 единиц одежды с возможностью выбора вывода определенных вещей первыми
 class LatestProductsManager:
     @staticmethod
     def get_products_for_main_page(*args, **kwargs):
@@ -25,7 +25,7 @@ class LatestProductsManager:
         clothes = []
         ct_models = ContentType.objects.filter(model__in=args)
         for ct_model in ct_models:
-            model_clothes = ct_model.model_class()._base_manager.all().order_by('-id')[:8]
+            model_clothes = ct_model.model_class()._base_manager.all().order_by('-id')[:4]
             clothes.extend(model_clothes)
         if respect_to:
             ct_model = ContentType.objects.filter(model=respect_to)

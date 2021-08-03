@@ -46,7 +46,7 @@
                         {% endif %}
                     </ul>
                     <form class="d-flex">
-                        <a class="ms-2 btn btn-success" href="{% url 'cart' %}" type="submit">
+                        <a class="btn btn-success" href="{% url 'cart' %}" type="submit">
                             Корзина<span class="badge bg-dark text-white ms-1 rounded-pill">{{ cart.clothes.count }}</span>
                         </a>
                       {% if not request.user.is_authenticated %}

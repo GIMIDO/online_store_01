@@ -1,19 +1,20 @@
 from django.db import transaction
 from django.shortcuts import render
-from django.views.generic import DetailView, View
+from django.views.generic import DetailView, View,   UpdateView, DeleteView, CreateView, ListView  #
 from django.http import HttpResponseRedirect
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
+from django.urls.base import reverse_lazy  #
 
-from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, Cart, CartProduct, Order, Clothes
+from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order
 from .mixins import CategoryDetailMixin, CartMixin
 from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm
 from .utils import recalc_cart
 
 
 class BaseView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
         clothes = LatestProducts.objects.get_products_for_main_page('hoodie', 'pants', 'shoes')
         context = {
@@ -62,7 +63,7 @@ class CategoryDetailView(CartMixin, CategoryDetailMixin, DetailView):
 
 
 class AddToCartView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
         clothes = content_type.model_class().objects.get(slug=clothes_slug)
@@ -77,7 +78,7 @@ class AddToCartView(CartMixin, View):
 
 
 class DeleteFromCartView(CartMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
         clothes = content_type.model_class().objects.get(slug=clothes_slug)
@@ -92,7 +93,7 @@ class DeleteFromCartView(CartMixin, View):
 
 
 class ChangeQTYView(CartMixin, View):
-    def post(self, request, *args, **kwargs):
+    def post(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
         clothes = content_type.model_class().objects.get(slug=clothes_slug)
@@ -108,7 +109,7 @@ class ChangeQTYView(CartMixin, View):
 
 
 class CartView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
         context = {
             'cart': self.cart,
@@ -118,7 +119,7 @@ class CartView(CartMixin, CategoryDetailMixin, View):
 
 
 class CheckoutView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
         form = OrderForm(request.POST or None)
         context = {
@@ -131,7 +132,7 @@ class CheckoutView(CartMixin, CategoryDetailMixin, View):
 
 class MakeOrderView(CartMixin, CategoryDetailMixin, View):
     @transaction.atomic
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = OrderForm(request.POST or None)
         client = Client.objects.get(user=request.user)
         if form.is_valid():
@@ -156,13 +157,13 @@ class MakeOrderView(CartMixin, CategoryDetailMixin, View):
 
 class LoginView(CartMixin, CategoryDetailMixin, View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         form = LoginForm(request.POST or None)
         categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
         return render(request, 'login.html', context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = LoginForm(request.POST or None)
         if form.is_valid():
             username = form.cleaned_data['username']
@@ -176,13 +177,13 @@ class LoginView(CartMixin, CategoryDetailMixin, View):
 
 
 class RegistrationView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         form = RegistrationForm(request.POST or None)
         categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
         return render(request, 'registration.html', context)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         form = RegistrationForm(request.POST or None)
         if form.is_valid():
             new_user = form.save(commit=False)
@@ -207,7 +208,7 @@ class RegistrationView(CartMixin, CategoryDetailMixin, View):
 
 class ProfileView(CartMixin, CategoryDetailMixin, View):
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         client = Client.objects.get(user=request.user)
         orders = Order.objects.filter(client=client).order_by('-created_at')
         categories = Category.objects.get_categories_for_nav()
@@ -215,7 +216,7 @@ class ProfileView(CartMixin, CategoryDetailMixin, View):
 
 
 class ClothesDelete(CartMixin, View):
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
         product = content_type.model_class().objects.get(slug=clothes_slug)
@@ -224,92 +225,37 @@ class ClothesDelete(CartMixin, View):
         return HttpResponseRedirect('/category/{}/'.format(ct_model))
 
 
-class ShoesAddView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
-        form = AddShoesForm(request.POST or None)
-        categories = Category.objects.get_categories_for_nav()
-        context = {'form': form, 'categories': categories, 'cart': self.cart}
-        return render(request, 'add_shoes.html', context)
+class ShoesCreateView(CreateView):
+    model = Shoes
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddShoesForm
 
-    def post(self, request, *args, **kwargs):
-        form = AddShoesForm(request.POST or None, request.FILES)
-        if form.is_valid():
-            form.save()
-            Shoes.objects.create(
-                category=form.cleaned_data['category'],
-                title=form.cleaned_data['title'],
-                description=form.cleaned_data['description'],
-                price=form.cleaned_data['price'],
-                image=form.cleaned_data['image'],
-                color=form.cleaned_data['color'],
-                size=form.cleaned_data['size'],
-                outsole_material=form.cleaned_data['outsole_material'],
-                insole_material=form.cleaned_data['insole_material'],
-                inner_material=form.cleaned_data['inner_material'],
-                top_material=form.cleaned_data['top_material'],
-                brand=form.cleaned_data['brand'],
-                slug=form.cleaned_data['slug']
-            )
-            return HttpResponseRedirect('/')
-        context = {'form': form, 'cart': self.cart}
-        return render(request, 'add_shoes.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавить обувь'
+        return context
 
 
-class PantsAddView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
-        form = AddPantsForm(request.POST or None, request.FILES)
-        categories = Category.objects.get_categories_for_nav()
-        context = {'form': form, 'categories': categories, 'cart': self.cart}
-        return render(request, 'add_pants.html', context)
+class PantsCreateView(CreateView):
+    model = Pants
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddPantsForm
 
-    def post(self, request, *args, **kwargs):
-        form = AddPantsForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            Pants.objects.create(
-                category=form.cleaned_data['category'],
-                title=form.cleaned_data['title'],
-                description=form.cleaned_data['description'],
-                price=form.cleaned_data['price'],
-                image=form.cleaned_data['image'],
-                color=form.cleaned_data['color'],
-                length_inside=form.cleaned_data['length_inside'],
-                length_side=form.cleaned_data['length_side'],
-                bottom_width=form.cleaned_data['bottom_width'],
-                pattern=form.cleaned_data['pattern'],
-                claps=form.cleaned_data['claps'],
-                brand=form.cleaned_data['brand'],
-                slug=form.cleaned_data['slug']
-            )
-            return HttpResponseRedirect('/')
-        context = {'form': form, 'cart': self.cart}
-        return render(request, 'add_pants.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавить брюки'
+        return context
 
 
-class HoodieAddView(CartMixin, CategoryDetailMixin, View):
-    def get(self, request, *args, **kwargs):
-        form = AddHoodieForm(request.POST or None, request.FILES)
-        categories = Category.objects.get_categories_for_nav()
-        context = {'form': form, 'categories': categories, 'cart': self.cart}
-        return render(request, 'add_hoodie.html', context)
+class HoodieCreateView(CreateView):
+    model = Hoodie
+    template_name = 'crud/clothes_add.html'
+    success_url = reverse_lazy('base')
+    form_class = AddHoodieForm
 
-    def post(self, request, *args, **kwargs):
-        form = AddHoodieForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            Hoodie.objects.create(
-                category=form.cleaned_data['category'],
-                title=form.cleaned_data['title'],
-                description=form.cleaned_data['description'],
-                price=form.cleaned_data['price'],
-                image=form.cleaned_data['image'],
-                color=form.cleaned_data['color'],
-                length=form.cleaned_data['length'],
-                length_sleeve=form.cleaned_data['length_sleeve'],
-                pattern=form.cleaned_data['pattern'],
-                brand=form.cleaned_data['brand'],
-                slug=form.cleaned_data['slug']
-            )
-            return HttpResponseRedirect('/')
-        context = {'form': form, 'cart': self.cart}
-        return render(request, 'add_hoodie.html', context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавить худи'
+        return context
