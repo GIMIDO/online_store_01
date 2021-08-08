@@ -19,15 +19,17 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
                          <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle me-4" href="#" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 Категории
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
                                 {% for category in categories %}
-                                    <a href="{{ category.url }}" class="dropdown-item d-flex justify-content-between align-items-center">
-                                {{ category.name }}
-                                <span class="badge bg-dark rounded-pill ms-2">{{ category.count }}</span>
-                            </a>
+                                    <li>
+                                        <a href="{{ category.url }}" class="dropdown-item d-flex justify-content-between align-items-center">
+                                            {{ category.name }}
+                                            <span class="badge bg-dark rounded-pill ms-2">{{ category.count }}</span>
+                                        </a>
+                                    </li>
                             {% endfor %}
                             </ul>
                         </li>
@@ -38,9 +40,13 @@
                                 Добавить товар
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'hoodie_add' %}">Добавить худи</a>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'pants_add' %}">Добавить брюки</a>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'shoes_add' %}">Добавить обувь</a>
+                                <li><h6 class="dropdown-header">Товары</h6></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'hoodie_add' %}">Добавить худи</a></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'pants_add' %}">Добавить брюки</a></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'shoes_add' %}">Добавить обувь</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Разное</h6></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'brand_add' %}">Добавить брэнд</a></li>
                             </ul>
                         </li>
                         {% endif %}

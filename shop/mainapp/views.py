@@ -1,15 +1,15 @@
 from django.db import transaction
 from django.shortcuts import render
-from django.views.generic import DetailView, View,   UpdateView, CreateView  #
+from django.views.generic import DetailView, View, UpdateView, CreateView  #
 from django.http import HttpResponseRedirect
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.urls.base import reverse_lazy  #
 
-from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order
+from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order, Brand
 from .mixins import CategoryDetailMixin, CartMixin
-from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm
+from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm, AddBrandForm
 from .utils import recalc_cart
 
 
@@ -161,7 +161,7 @@ class LoginView(CartMixin, CategoryDetailMixin, View):
         form = LoginForm(request.POST or None)
         categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
-        return render(request, 'login.html', context)
+        return render(request, 'profile/login.html', context)
 
     def post(self, request):
         form = LoginForm(request.POST or None)
@@ -173,7 +173,7 @@ class LoginView(CartMixin, CategoryDetailMixin, View):
                 login(request, user)
                 return HttpResponseRedirect('/')
         context = {'form': form, 'cart': self.cart}
-        return render(request, 'login.html', context)
+        return render(request, 'profile/login.html', context)
 
 
 class RegistrationView(CartMixin, CategoryDetailMixin, View):
@@ -181,7 +181,7 @@ class RegistrationView(CartMixin, CategoryDetailMixin, View):
         form = RegistrationForm(request.POST or None)
         categories = Category.objects.get_categories_for_nav()
         context = {'form': form, 'categories': categories, 'cart': self.cart}
-        return render(request, 'registration.html', context)
+        return render(request, 'profile/registration.html', context)
 
     def post(self, request):
         form = RegistrationForm(request.POST or None)
@@ -203,7 +203,7 @@ class RegistrationView(CartMixin, CategoryDetailMixin, View):
             login(request, user)
             return HttpResponseRedirect('/')
         context = {'form': form, 'cart': self.cart}
-        return render(request, 'registration.html', context)
+        return render(request, 'profile/registration.html', context)
 
 
 class ProfileView(CartMixin, CategoryDetailMixin, View):
@@ -212,7 +212,7 @@ class ProfileView(CartMixin, CategoryDetailMixin, View):
         client = Client.objects.get(user=request.user)
         orders = Order.objects.filter(client=client).order_by('-created_at')
         categories = Category.objects.get_categories_for_nav()
-        return render(request, 'profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
+        return render(request, 'profile/profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
 
 
 class ClothesDelete(CartMixin, View):
@@ -227,7 +227,7 @@ class ClothesDelete(CartMixin, View):
 
 class ShoesCreateView(CreateView):
     model = Shoes
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddShoesForm
 
@@ -239,7 +239,7 @@ class ShoesCreateView(CreateView):
 
 class PantsCreateView(CreateView):
     model = Pants
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddPantsForm
 
@@ -251,7 +251,7 @@ class PantsCreateView(CreateView):
 
 class HoodieCreateView(CreateView):
     model = Hoodie
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddHoodieForm
 
@@ -263,7 +263,7 @@ class HoodieCreateView(CreateView):
 
 class ShoesUpdateView(UpdateView):
     model = Shoes
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddShoesForm
 
@@ -275,7 +275,7 @@ class ShoesUpdateView(UpdateView):
 
 class PantsUpdateView(UpdateView):
     model = Pants
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddPantsForm
 
@@ -287,11 +287,23 @@ class PantsUpdateView(UpdateView):
 
 class HoodieUpdateView(UpdateView):
     model = Hoodie
-    template_name = 'crud/clothes_add.html'
+    template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
     form_class = AddHoodieForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Обновить худи'
+        return context
+
+
+class BrandCreateView(CreateView):
+    model = Brand
+    template_name = 'crud/add_template.html'
+    success_url = reverse_lazy('base')
+    form_class = AddBrandForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Добавить брэнд'
         return context

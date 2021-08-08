@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelChoiceField
 from django.contrib.auth.models import User
-from .models import Order, Shoes, Pants, Category, Hoodie
+from .models import Order, Shoes, Pants, Category, Hoodie, Brand
 
 
 class OrderForm(forms.ModelForm):
@@ -144,6 +144,19 @@ class AddHoodieForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['category'].label = 'Категория'
+
+    def clean(self):
+        return self.cleaned_data
+
+
+class AddBrandForm(forms.ModelForm):
+
+    class Meta:
+        model = Brand
+        fields = ['name', 'slug']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def clean(self):
         return self.cleaned_data

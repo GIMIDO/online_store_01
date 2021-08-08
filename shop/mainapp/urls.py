@@ -24,8 +24,9 @@ urlpatterns = [
     path('shoes-add/', ShoesCreateView.as_view(), name='shoes_add'),
     path('pants-add/', PantsCreateView.as_view(), name='pants_add'),
     path('hoodie-add/', HoodieCreateView.as_view(), name='hoodie_add'),
+    path('brand-add/', BrandCreateView.as_view(), name='brand_add'),
 
-    path('<str:get_model_name>/<str:slug>/shoes-update/', ShoesUpdateView.as_view(), name='shoes_update'),
-    path('<str:get_model_name>/<str:slug>/pants-update/', PantsUpdateView.as_view(), name='pants_update'),
-    path('<str:get_model_name>/<str:slug>/hoodie-update/', HoodieUpdateView.as_view(), name='hoodie_update')
+    path('<str:get_model_name>/<str:slug>/update/', ShoesUpdateView.as_view(), name='shoes_update'),
+    path('<str:get_model_name>/<str:slug>/update/', PantsUpdateView.as_view(), name='pants_update'),
+    path('<str:get_model_name>/<str:slug>/update/', HoodieUpdateView.as_view(), name='hoodie_update')
 ]
