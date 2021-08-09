@@ -1,0 +1,26 @@
+<!--{% extends 'base.html' %}-->
+
+{% block content %}
+<div class="container px-4 px-lg-5 mt-5 text-center">
+<div class="col-md-12">
+    <table class="table">
+      <thead>
+        <th scope="col">Имя</th>
+        <th scope="col">Фамилия</th>
+        <th scope="col">Логин</th>
+        <th scope="col">Почта</th>
+      </thead>
+      <tbody>
+        {% for user in users %}
+          <tr>
+            <td>{{ user.first_name }}</td>
+            <td>{{ user.last_name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

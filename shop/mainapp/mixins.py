@@ -1,3 +1,5 @@
+from django.contrib import messages
+from django.shortcuts import redirect
 from django.views.generic.detail import SingleObjectMixin
 from django.views.generic import View
 
@@ -36,4 +38,12 @@ class CartMixin(View):
             if not cart:
                 cart = Cart.objects.create(anon_user=True)
         self.cart = cart
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AuthenticatedMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_superuser:
+            messages.add_message(request, messages.INFO, 'Недостаточно прав!')
+            return redirect('/')
         return super().dispatch(request, *args, **kwargs)

@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.generic import DetailView, View, UpdateView, CreateView  #
 from django.http import HttpResponseRedirect
 from django.contrib.contenttypes.models import ContentType
@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.urls.base import reverse_lazy  #
 
-from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order, Brand
-from .mixins import CategoryDetailMixin, CartMixin
+from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order, Brand, User
+from .mixins import CategoryDetailMixin, CartMixin, AuthenticatedMixin
 from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm, AddBrandForm
 from .utils import recalc_cart
 
@@ -215,7 +215,7 @@ class ProfileView(CartMixin, CategoryDetailMixin, View):
         return render(request, 'profile/profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
 
 
-class ClothesDelete(CartMixin, View):
+class ClothesDelete(AuthenticatedMixin, CartMixin, View):
     def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
@@ -225,7 +225,7 @@ class ClothesDelete(CartMixin, View):
         return HttpResponseRedirect('/category/{}/'.format(ct_model))
 
 
-class ShoesCreateView(CreateView):
+class ShoesCreateView(AuthenticatedMixin, CreateView):
     model = Shoes
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -237,7 +237,7 @@ class ShoesCreateView(CreateView):
         return context
 
 
-class PantsCreateView(CreateView):
+class PantsCreateView(AuthenticatedMixin, CreateView):
     model = Pants
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -249,7 +249,7 @@ class PantsCreateView(CreateView):
         return context
 
 
-class HoodieCreateView(CreateView):
+class HoodieCreateView(AuthenticatedMixin, CreateView):
     model = Hoodie
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -261,7 +261,7 @@ class HoodieCreateView(CreateView):
         return context
 
 
-class ShoesUpdateView(UpdateView):
+class ShoesUpdateView(AuthenticatedMixin, UpdateView):
     model = Shoes
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -273,7 +273,7 @@ class ShoesUpdateView(UpdateView):
         return context
 
 
-class PantsUpdateView(UpdateView):
+class PantsUpdateView(AuthenticatedMixin, UpdateView):
     model = Pants
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -285,7 +285,7 @@ class PantsUpdateView(UpdateView):
         return context
 
 
-class HoodieUpdateView(UpdateView):
+class HoodieUpdateView(AuthenticatedMixin, UpdateView):
     model = Hoodie
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -297,7 +297,7 @@ class HoodieUpdateView(UpdateView):
         return context
 
 
-class BrandCreateView(CreateView):
+class BrandCreateView(AuthenticatedMixin, CreateView):
     model = Brand
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
@@ -307,3 +307,12 @@ class BrandCreateView(CreateView):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Добавить брэнд'
         return context
+
+
+class UsersView(AuthenticatedMixin, View):
+    def get(self, request):
+        users = User.objects.all()
+        context = {
+            'users': users
+        }
+        return render(request, 'profile/users.html', context)

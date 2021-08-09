@@ -5,6 +5,17 @@
   <title>Профиль</title>
 </head>
 <div class="container px-4 px-lg-5 mt-5 text-center">
+  {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show mb-5" role="alert">
+        <strong>{{ message }}</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    {% endfor %}
+  {% endif %}
+  {% if user.is_superuser %}
+    <a class="ms-2 btn btn-primary" href="{% url 'show_users' %}">Пользователи</a>
+  {% endif %}
   <h3 class="mt-5 mb-5">Ваши заказы ({{ request.user.username }})</h3>
 
   {% if not orders.count %}
