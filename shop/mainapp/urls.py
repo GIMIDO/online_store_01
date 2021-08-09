@@ -21,9 +21,7 @@ urlpatterns = [
 
     path('clothes-delete/<str:ct_model>/<str:slug>/', ClothesDelete.as_view(), name='clothes_delete'),
 
-    path('shoes-add/', ShoesCreateView.as_view(), name='shoes_add'),
-    path('pants-add/', PantsCreateView.as_view(), name='pants_add'),
-    path('hoodie-add/', HoodieCreateView.as_view(), name='hoodie_add'),
+    path('<str:model>/add/', ClothesCreateView.as_view(), name='clothes_add'),
     path('brand-add/', BrandCreateView.as_view(), name='brand_add'),
 
     path('<str:get_model_name>/<str:slug>/update/', ShoesUpdateView.as_view(), name='shoes_update'),

@@ -22,11 +22,13 @@
                                 Добавить товар
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'hoodie_add' %}">Добавить худи</a>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'shoes_add' %}">Добавить обувь</a>
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'pants_add' %}">Добавить брюки</a>
-                                <hr class="dropdown-divider">
-                                <a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'brand_add' %}">Добавить брэнд</a>
+                                <li><h6 class="dropdown-header">Товары</h6></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'clothes_add' model='Hoodie' %}">Добавить худи</a></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'clothes_add' model='Shoes' %}">Добавить обувь</a></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'clothes_add' model='Pants' %}">Добавить брюки</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Разное</h6></li>
+                                <li><a class="dropdown-item d-flex justify-content-between align-items-center" href="{% url 'brand_add' %}">Добавить брэнд</a></li>
                             </ul>
                         </li>
                     </ul>
@@ -38,7 +40,7 @@
     <div class="mt-5 mx-auto w-50 row">
         <div class="">
             <h3 class="text-center mb-3">{{ title }}</h3>
-            <form action="{% url 'shoes_add' %}" method="POST" enctype="multipart/form-data">
+            <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form|crispy }}
                 <input type="submit" class="btn btn-success" value="Добавить">

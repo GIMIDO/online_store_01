@@ -17,7 +17,7 @@ def get_models_for_count(*model_names):
     return [models.Count(model_name) for model_name in model_names]
 
 
-# вывод до 4 единиц одежды с возможностью выбора вывода определенных вещей первыми
+# вывод до 4 единиц одежды с возможностью выбора вывода определенных типов вещей первыми
 class LatestProductsManager:
     @staticmethod
     def get_products_for_main_page(*args, **kwargs):

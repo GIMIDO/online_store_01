@@ -3,7 +3,7 @@ from django.forms import ModelChoiceField
 from django.contrib.auth.models import User
 from .models import Order, Shoes, Pants, Category, Hoodie, Brand
 
-
+# форма Заказа
 class OrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -17,7 +17,7 @@ class OrderForm(forms.ModelForm):
             'first_name', 'last_name', 'phone', 'address', 'buying_type', 'order_date', 'comment'
         )
 
-
+# форма Авторизации
 class LoginForm(forms.ModelForm):
 
     password = forms.CharField(widget=forms.PasswordInput)
@@ -42,7 +42,7 @@ class LoginForm(forms.ModelForm):
                 raise forms.ValidationError('Неверный пароль')
         return self.cleaned_data
 
-
+# форма Регистрации
 class RegistrationForm(forms.ModelForm):
     confirm_password = forms.CharField(widget=forms.PasswordInput)
     password = forms.CharField(widget=forms.PasswordInput)
@@ -85,7 +85,7 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Пароли не совпадают')
         return self.cleaned_data
 
-
+# форма добавление Обуви
 class AddShoesForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='shoes'))
 
@@ -106,7 +106,7 @@ class AddShoesForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-
+# форма добавления Брюки
 class AddPantsForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='pants'))
 
@@ -127,7 +127,7 @@ class AddPantsForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-
+# форма добавления Худи
 class AddHoodieForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='hoodies'))
 
@@ -148,7 +148,7 @@ class AddHoodieForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-
+# форма добавления Брэнда
 class AddBrandForm(forms.ModelForm):
 
     class Meta:

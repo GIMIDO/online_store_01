@@ -12,7 +12,7 @@ from .mixins import CategoryDetailMixin, CartMixin, AuthenticatedMixin
 from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm, AddBrandForm
 from .utils import recalc_cart
 
-
+# основное представление
 class BaseView(CartMixin, View):
     def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
@@ -24,7 +24,7 @@ class BaseView(CartMixin, View):
         }
         return render(request, 'base.html', context)
 
-
+# представление товара
 class ClothesDetailView(CartMixin, CategoryDetailMixin, DetailView):
 
     CT_MODEL_MODEL_CLASS = {
@@ -48,7 +48,7 @@ class ClothesDetailView(CartMixin, CategoryDetailMixin, DetailView):
         context['cart'] = self.cart
         return context
 
-
+# представление категории
 class CategoryDetailView(CartMixin, CategoryDetailMixin, DetailView):
     model = Category
     queryset = Category.objects.all()
@@ -61,7 +61,7 @@ class CategoryDetailView(CartMixin, CategoryDetailMixin, DetailView):
         context['cart'] = self.cart
         return context
 
-
+# добавление товара в корзину
 class AddToCartView(CartMixin, View):
     def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
@@ -76,7 +76,7 @@ class AddToCartView(CartMixin, View):
         messages.add_message(request, messages.INFO, "Товар добавлен")
         return HttpResponseRedirect('/cart/')
 
-
+# удаление товара из корзины
 class DeleteFromCartView(CartMixin, View):
     def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
@@ -91,7 +91,7 @@ class DeleteFromCartView(CartMixin, View):
         messages.add_message(request, messages.INFO, "Товар удален")
         return HttpResponseRedirect('/cart/')
 
-
+# изменнеие кол-ва товара в корзине
 class ChangeQTYView(CartMixin, View):
     def post(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
@@ -107,7 +107,7 @@ class ChangeQTYView(CartMixin, View):
         messages.add_message(request, messages.INFO, "Изменено кол-во товара")
         return HttpResponseRedirect('/cart/')
 
-
+# представление корзины
 class CartView(CartMixin, CategoryDetailMixin, View):
     def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
@@ -117,7 +117,7 @@ class CartView(CartMixin, CategoryDetailMixin, View):
         }
         return render(request, 'cart.html', context)
 
-
+# представление Заказа
 class CheckoutView(CartMixin, CategoryDetailMixin, View):
     def get(self, request):
         categories = (Category.objects.get_categories_for_nav())
@@ -129,7 +129,7 @@ class CheckoutView(CartMixin, CategoryDetailMixin, View):
         }
         return render(request, 'checkout.html', context)
 
-
+# создание Заказа
 class MakeOrderView(CartMixin, CategoryDetailMixin, View):
     @transaction.atomic
     def post(self, request):
@@ -154,7 +154,7 @@ class MakeOrderView(CartMixin, CategoryDetailMixin, View):
             return HttpResponseRedirect('/')
         return HttpResponseRedirect('/checkout/')
 
-
+# Авторизация
 class LoginView(CartMixin, CategoryDetailMixin, View):
 
     def get(self, request):
@@ -175,7 +175,7 @@ class LoginView(CartMixin, CategoryDetailMixin, View):
         context = {'form': form, 'cart': self.cart}
         return render(request, 'profile/login.html', context)
 
-
+# Регистрация
 class RegistrationView(CartMixin, CategoryDetailMixin, View):
     def get(self, request):
         form = RegistrationForm(request.POST or None)
@@ -205,7 +205,7 @@ class RegistrationView(CartMixin, CategoryDetailMixin, View):
         context = {'form': form, 'cart': self.cart}
         return render(request, 'profile/registration.html', context)
 
-
+# профиль пользователя
 class ProfileView(CartMixin, CategoryDetailMixin, View):
 
     def get(self, request):
@@ -214,7 +214,7 @@ class ProfileView(CartMixin, CategoryDetailMixin, View):
         categories = Category.objects.get_categories_for_nav()
         return render(request, 'profile/profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
 
-
+# удаление товара
 class ClothesDelete(AuthenticatedMixin, CartMixin, View):
     def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
@@ -224,43 +224,33 @@ class ClothesDelete(AuthenticatedMixin, CartMixin, View):
         messages.add_message(request, messages.INFO, "Товар удален из базы")
         return HttpResponseRedirect('/category/{}/'.format(ct_model))
 
+# создание товара
+class ClothesCreateView(AuthenticatedMixin, CreateView):
 
-class ShoesCreateView(AuthenticatedMixin, CreateView):
-    model = Shoes
+    def dispatch(self, request, *args, **kwargs):
+        self.model = kwargs.get('model')
+        if self.model == 'Hoodie':
+            self.form_class = AddHoodieForm
+        elif self.model == 'Pants':
+            self.form_class = AddPantsForm
+        if self.model == 'Shoes':
+            self.form_class = AddShoesForm
+        return super().dispatch(request, *args, **kwargs)
+
     template_name = 'crud/add_template.html'
     success_url = reverse_lazy('base')
-    form_class = AddShoesForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавить обувь'
+        if self.model == 'Hoodie':
+            context['title'] = 'Добавить худи'
+        elif self.model == 'Pants':
+            context['title'] = 'Добавить брюки'
+        if self.model == 'Shoes':
+            context['title'] = 'Добавить обувь'
         return context
 
-
-class PantsCreateView(AuthenticatedMixin, CreateView):
-    model = Pants
-    template_name = 'crud/add_template.html'
-    success_url = reverse_lazy('base')
-    form_class = AddPantsForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавить брюки'
-        return context
-
-
-class HoodieCreateView(AuthenticatedMixin, CreateView):
-    model = Hoodie
-    template_name = 'crud/add_template.html'
-    success_url = reverse_lazy('base')
-    form_class = AddHoodieForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Добавить худи'
-        return context
-
-
+# изменение товара Обувь
 class ShoesUpdateView(AuthenticatedMixin, UpdateView):
     model = Shoes
     template_name = 'crud/add_template.html'
@@ -272,7 +262,7 @@ class ShoesUpdateView(AuthenticatedMixin, UpdateView):
         context['title'] = 'Обновить обувь'
         return context
 
-
+# изменение товара Брюки
 class PantsUpdateView(AuthenticatedMixin, UpdateView):
     model = Pants
     template_name = 'crud/add_template.html'
@@ -284,7 +274,7 @@ class PantsUpdateView(AuthenticatedMixin, UpdateView):
         context['title'] = 'Обновить брюки'
         return context
 
-
+# изменение товара Худи
 class HoodieUpdateView(AuthenticatedMixin, UpdateView):
     model = Hoodie
     template_name = 'crud/add_template.html'
@@ -296,7 +286,7 @@ class HoodieUpdateView(AuthenticatedMixin, UpdateView):
         context['title'] = 'Обновить худи'
         return context
 
-
+# создание Брэнда
 class BrandCreateView(AuthenticatedMixin, CreateView):
     model = Brand
     template_name = 'crud/add_template.html'
@@ -308,7 +298,7 @@ class BrandCreateView(AuthenticatedMixin, CreateView):
         context['title'] = 'Добавить брэнд'
         return context
 
-
+# просмотр всех пользователей
 class UsersView(AuthenticatedMixin, View):
     def get(self, request):
         users = User.objects.all()
