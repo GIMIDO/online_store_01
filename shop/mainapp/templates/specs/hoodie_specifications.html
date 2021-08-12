@@ -26,7 +26,3 @@
     </tr>
   </tbody>
 </table>
-{% if request.user.is_superuser %}
-    <a class="btn btn-primary" href="{% url 'hoodie_update' clothes.get_model_name clothes.slug %}">Изменить</a>
-    <a class="btn btn-danger" href="{% url 'clothes_delete' ct_model=clothes.get_model_name slug=clothes.slug %}">Удалить</a>
-{% endif %}

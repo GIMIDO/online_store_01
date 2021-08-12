@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>{{ title }}</title>
+        <title>{{ title }}{{ category }}</title>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
@@ -43,7 +43,7 @@
             <form action="" method="POST" enctype="multipart/form-data">
                 {% csrf_token %}
                 {{ form|crispy }}
-                <input type="submit" class="btn btn-success" value="Добавить">
+                <input type="submit" class="btn btn-success" value="{{ button_name }}">
             </form>
         </div>
     </div>

@@ -1,15 +1,15 @@
 from django.db import transaction
-from django.shortcuts import render, redirect
-from django.views.generic import DetailView, View, UpdateView, CreateView  #
+from django.shortcuts import render
+from django.views.generic import DetailView, View, UpdateView, CreateView
 from django.http import HttpResponseRedirect
 from django.contrib.contenttypes.models import ContentType
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.urls.base import reverse_lazy  #
+from django.urls.base import reverse_lazy
 
 from .models import Shoes, Pants, Hoodie, Category, LatestProducts, Client, CartProduct, Order, Brand, User
 from .mixins import CategoryDetailMixin, CartMixin, AuthenticatedMixin
-from .forms import OrderForm, LoginForm, RegistrationForm, AddShoesForm, AddPantsForm, AddHoodieForm, AddBrandForm
+from .forms import OrderForm, LoginForm, RegistrationForm, ShoesForm, PantsForm, HoodieForm, BrandForm
 from .utils import recalc_cart
 
 # основное представление
@@ -227,21 +227,23 @@ class ClothesDelete(AuthenticatedMixin, CartMixin, View):
 # создание товара
 class ClothesCreateView(AuthenticatedMixin, CreateView):
 
+    CT_MODEL_FORM_CLASS = {
+        'Shoes': ShoesForm,
+        'Hoodie': HoodieForm,
+        'Pants': PantsForm
+    }
+
     def dispatch(self, request, *args, **kwargs):
         self.model = kwargs.get('model')
-        if self.model == 'Hoodie':
-            self.form_class = AddHoodieForm
-        elif self.model == 'Pants':
-            self.form_class = AddPantsForm
-        if self.model == 'Shoes':
-            self.form_class = AddShoesForm
+        self.form_class = self.CT_MODEL_FORM_CLASS[kwargs['model']]
         return super().dispatch(request, *args, **kwargs)
 
-    template_name = 'crud/add_template.html'
+    template_name = 'crud/crud_template.html'
     success_url = reverse_lazy('base')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['button_name'] = 'Добавить'
         if self.model == 'Hoodie':
             context['title'] = 'Добавить худи'
         elif self.model == 'Pants':
@@ -250,48 +252,46 @@ class ClothesCreateView(AuthenticatedMixin, CreateView):
             context['title'] = 'Добавить обувь'
         return context
 
-# изменение товара Обувь
-class ShoesUpdateView(AuthenticatedMixin, UpdateView):
-    model = Shoes
-    template_name = 'crud/add_template.html'
+# изменение товара
+class ClothesUpdateView(AuthenticatedMixin, UpdateView):
+
+    CT_MODEL_MODEL_CLASS = {
+        'shoes': Shoes,
+        'hoodie': Hoodie,
+        'pants': Pants
+    }
+    CT_MODEL_FORM_CLASS = {
+        'shoes': ShoesForm,
+        'hoodie': HoodieForm,
+        'pants': PantsForm
+    }
+
+    def dispatch(self, request, *args, **kwargs):
+        self.model = self.CT_MODEL_MODEL_CLASS[kwargs['ct_model']]
+        self.queryset = self.model._base_manager.all()
+        self.form_class = self.CT_MODEL_FORM_CLASS[kwargs['ct_model']]
+        return super().dispatch(request, *args, **kwargs)
+
+    template_name = 'crud/crud_template.html'
     success_url = reverse_lazy('base')
-    form_class = AddShoesForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Обновить обувь'
-        return context
-
-# изменение товара Брюки
-class PantsUpdateView(AuthenticatedMixin, UpdateView):
-    model = Pants
-    template_name = 'crud/add_template.html'
-    success_url = reverse_lazy('base')
-    form_class = AddPantsForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Обновить брюки'
-        return context
-
-# изменение товара Худи
-class HoodieUpdateView(AuthenticatedMixin, UpdateView):
-    model = Hoodie
-    template_name = 'crud/add_template.html'
-    success_url = reverse_lazy('base')
-    form_class = AddHoodieForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Обновить худи'
+        context['button_name'] = 'Обновить'
+        if self.model == 'Hoodie':
+            context['title'] = 'Обновить худи'
+        elif self.model == 'Pants':
+            context['title'] = 'Обновить брюки'
+        if self.model == 'Shoes':
+            context['title'] = 'Обновить обувь'
         return context
 
 # создание Брэнда
 class BrandCreateView(AuthenticatedMixin, CreateView):
     model = Brand
-    template_name = 'crud/add_template.html'
+    template_name = 'crud/crud_template.html'
     success_url = reverse_lazy('base')
-    form_class = AddBrandForm
+    form_class = BrandForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -299,10 +299,13 @@ class BrandCreateView(AuthenticatedMixin, CreateView):
         return context
 
 # просмотр всех пользователей
-class UsersView(AuthenticatedMixin, View):
+class UsersView(AuthenticatedMixin, CartMixin, CategoryDetailMixin, View):
     def get(self, request):
         users = User.objects.all()
+        categories = Category.objects.get_categories_for_nav()
         context = {
-            'users': users
+            'users': users,
+            'cart': self.cart,
+            'categories': categories
         }
         return render(request, 'profile/users.html', context)

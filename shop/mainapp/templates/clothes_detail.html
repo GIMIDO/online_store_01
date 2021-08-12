@@ -17,6 +17,10 @@
                                 {% include 'specs/shoes_specifications.html' %}
                             {% endif %}
                             {% if request.user.is_authenticated %}
+                                {% if request.user.is_superuser %}
+                                    <a class="btn btn-primary" href="{% url 'clothes_update' ct_model=clothes.get_model_name slug=clothes.slug %}">Изменить</a>
+                                    <a class="btn btn-danger" href="{% url 'clothes_delete' ct_model=clothes.get_model_name slug=clothes.slug %}">Удалить</a>
+                                {% endif %}
                                 <a class="btn btn-success" href="{% url 'add_to_cart' ct_model=ct_model slug=clothes.slug %}">Добавить в корзину</a>
                             {% else %}
                                 <h4 class="">Войдите в систему чтобы купить товар</h4>

@@ -7,7 +7,7 @@ from .models import Order, Shoes, Pants, Category, Hoodie, Brand
 class OrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(*args,**kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['order_date'].label = 'Дата получения заказа'
     order_date = forms.DateField(widget=forms.TextInput(attrs={'type': 'date'}))
 
@@ -86,7 +86,7 @@ class RegistrationForm(forms.ModelForm):
         return self.cleaned_data
 
 # форма добавление Обуви
-class AddShoesForm(forms.ModelForm):
+class ShoesForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='shoes'))
 
     class Meta:
@@ -107,7 +107,7 @@ class AddShoesForm(forms.ModelForm):
         return self.cleaned_data
 
 # форма добавления Брюки
-class AddPantsForm(forms.ModelForm):
+class PantsForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='pants'))
 
     class Meta:
@@ -128,7 +128,7 @@ class AddPantsForm(forms.ModelForm):
         return self.cleaned_data
 
 # форма добавления Худи
-class AddHoodieForm(forms.ModelForm):
+class HoodieForm(forms.ModelForm):
     category = ModelChoiceField(Category.objects.filter(slug='hoodies'))
 
     class Meta:
@@ -149,7 +149,7 @@ class AddHoodieForm(forms.ModelForm):
         return self.cleaned_data
 
 # форма добавления Брэнда
-class AddBrandForm(forms.ModelForm):
+class BrandForm(forms.ModelForm):
 
     class Meta:
         model = Brand
