@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.urls import reverse
 from django.utils import timezone
-
+from django.core.exceptions import ObjectDoesNotExist
 
 User = get_user_model()
 
@@ -86,16 +86,33 @@ class Clothes(models.Model):
 
     category = models.ForeignKey(Category, verbose_name='Категория', on_delete=models.CASCADE)
     title = models.CharField(max_length=255, verbose_name='Наименование')
-    # slug = models.SlugField(unique=True)
     image = models.ImageField(verbose_name='Изображение', default=None)
     description = models.TextField(verbose_name='Описание', null=True)
     price = models.DecimalField(max_digits=7, decimal_places=2, verbose_name='Цена')
+
 
     def __str__(self):
         return self.title
 
     def get_model_name(self):
         return self.__class__.__name__.lower()
+
+    def delete(self, *args, **kwargs):
+        self.image.delete()
+        return super().delete(*args, **kwargs)
+
+    def remove_on_image_update(self):
+        try:
+            obj = self.__class__.objects.get(id=self.id)
+        except ObjectDoesNotExist:
+            return
+        if obj.image and self.image and obj.image != self.image:
+            obj.image.delete()
+
+    def save(self, *args, **kwargs):
+        self.remove_on_image_update()
+        return super().save(*args, **kwargs)
+
 
 class Hoodie(Clothes):
     color = models.CharField(max_length=255, verbose_name='Цвет')
@@ -147,7 +164,7 @@ class Shoes(Clothes):
 
 
 class CartProduct(models.Model):
-    user = models.ForeignKey('Client', verbose_name='Покупатель', on_delete=models.CASCADE)
+    user = models.ForeignKey('Client', null=True, verbose_name='Покупатель', on_delete=models.CASCADE)
     cart = models.ForeignKey('Cart', verbose_name='Корзина', on_delete=models.CASCADE, related_name='related_products')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
@@ -182,7 +199,7 @@ class Client(models.Model):
     orders = models.ManyToManyField('Order', verbose_name='Заказы покупателя', related_name='related_client')
 
     def __str__(self):
-        return "Покупатель {} {}".format(self.user.first_name, self.user.last_name)
+        return "Покупатель {} {} {}".format(self.user.first_name, self.user.last_name, self.user.username)
 
 
 class Order(models.Model):

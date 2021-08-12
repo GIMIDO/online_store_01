@@ -19,12 +19,10 @@ urlpatterns = [
     path('registration/', RegistrationView.as_view(), name='registration'),
     path('profile/', ProfileView.as_view(), name='profile'),
 
-    path('clothes-delete/<str:ct_model>/<str:slug>/', ClothesDelete.as_view(), name='clothes_delete'),
-
     path('<str:model>/add/', ClothesCreateView.as_view(), name='clothes_add'),
     path('brand-add/', BrandCreateView.as_view(), name='brand_add'),
-
     path('<str:ct_model>/<str:slug>/update/', ClothesUpdateView.as_view(), name='clothes_update'),
+    path('clothes-delete/<str:ct_model>/<str:slug>/', ClothesDelete.as_view(), name='clothes_delete'),
 
     path('users/', UsersView.as_view(), name='show_users')
 ]

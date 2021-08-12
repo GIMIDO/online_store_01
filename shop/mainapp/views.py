@@ -134,7 +134,12 @@ class MakeOrderView(CartMixin, CategoryDetailMixin, View):
     @transaction.atomic
     def post(self, request):
         form = OrderForm(request.POST or None)
-        client = Client.objects.get(user=request.user)
+        if request.user.is_authenticated:
+            client = Client.objects.get(user=request.user)
+            anon_check = ""
+        else:
+            client = Client.objects.filter().first()
+            anon_check = "АНОНИМНЫЙ ПОЛЬЗОВАТЕЛЬ\n"
         if form.is_valid():
             new_order = form.save(commit=False)
             new_order.client = client
@@ -143,7 +148,7 @@ class MakeOrderView(CartMixin, CategoryDetailMixin, View):
             new_order.phone = form.cleaned_data['phone']
             new_order.address = form.cleaned_data['address']
             new_order.buying_type = form.cleaned_data['buying_type']
-            new_order.comment = form.cleaned_data['comment']
+            new_order.comment = str(anon_check) + form.cleaned_data['comment']
             new_order.save()
             self.cart.in_order = True
             self.cart.save()
@@ -215,14 +220,14 @@ class ProfileView(CartMixin, CategoryDetailMixin, View):
         return render(request, 'profile/profile.html', {'orders': orders, 'cart': self.cart, 'categories': categories})
 
 # удаление товара
-class ClothesDelete(AuthenticatedMixin, CartMixin, View):
+class ClothesDelete(AuthenticatedMixin, View):
     def get(self, request, **kwargs):
         ct_model, clothes_slug = kwargs.get('ct_model'), kwargs.get('slug')
         content_type = ContentType.objects.get(model=ct_model)
         product = content_type.model_class().objects.get(slug=clothes_slug)
         product.delete()
         messages.add_message(request, messages.INFO, "Товар удален из базы")
-        return HttpResponseRedirect('/category/{}/'.format(ct_model))
+        return HttpResponseRedirect('/category/{}s/'.format(ct_model))
 
 # создание товара
 class ClothesCreateView(AuthenticatedMixin, CreateView):
