@@ -1,5 +1,10 @@
 # nvs_site
-Install packages to work:
- - Pillow
- - Django
- - crispy-bootstrap5
+
+Online store project
+
+## Installation
+
+Install packages from **requirements.txt**:
+```
+pip install -r requirements.txt
+```

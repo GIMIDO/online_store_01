@@ -1,6 +1,6 @@
 from django.db import models
 
-
+# calculates the final price of the cart
 def recalc_cart(cart):
     cart_data = cart.clothes.aggregate(models.Sum('final_price'), models.Count('id'))
     if cart_data.get('final_price__sum'):

@@ -17,8 +17,10 @@ def get_models_for_count(*model_names):
     return [models.Count(model_name) for model_name in model_names]
 
 
-# вывод до 4 единиц одежды с возможностью выбора вывода определенных типов вещей первыми
 class LatestProductsManager:
+    """
+    displays up to four products of each category with the option to display a specific product category first
+    """
     @staticmethod
     def get_products_for_main_page(*args, **kwargs):
         respect_to = kwargs.get('respect_to')
@@ -81,6 +83,9 @@ class Brand(models.Model):
 
 
 class Clothes(models.Model):
+    """
+    general product model
+    """
     class Meta:
         abstract = True
 
@@ -97,10 +102,12 @@ class Clothes(models.Model):
     def get_model_name(self):
         return self.__class__.__name__.lower()
 
+    # overridden "delete" method, also removes product image
     def delete(self, *args, **kwargs):
         self.image.delete()
         return super().delete(*args, **kwargs)
 
+    # method of changing the product image
     def remove_on_image_update(self):
         try:
             obj = self.__class__.objects.get(id=self.id)
@@ -115,6 +122,9 @@ class Clothes(models.Model):
 
 
 class Hoodie(Clothes):
+    """
+    model "Hoodie" inherited from "Clothes"
+    """
     color = models.CharField(max_length=255, verbose_name='Цвет')
     length = models.CharField(max_length=255, verbose_name='Длина')
     length_sleeve = models.CharField(max_length=255, verbose_name='Длина рукава')
@@ -130,6 +140,9 @@ class Hoodie(Clothes):
 
 
 class Pants(Clothes):
+    """
+    model "Pants" inherited from "Clothes"
+    """
     color = models.CharField(max_length=255, verbose_name='Цвет')
     length_inside = models.CharField(max_length=15, verbose_name='Длина по внутреннему шву')
     length_side = models.CharField(max_length=15, verbose_name='Длина по боковому шву')
@@ -147,6 +160,9 @@ class Pants(Clothes):
 
 
 class Shoes(Clothes):
+    """
+    model "Shoes" inherited from "Clothes"
+    """
     color = models.CharField(max_length=255, verbose_name='Цвет')
     size = models.CharField(max_length=255, verbose_name='Размер')
     outsole_material = models.CharField(max_length=200, verbose_name='Материал подошвы')
@@ -164,6 +180,9 @@ class Shoes(Clothes):
 
 
 class CartProduct(models.Model):
+    """
+    product model for cart
+    """
     user = models.ForeignKey('Client', null=True, verbose_name='Покупатель', on_delete=models.CASCADE)
     cart = models.ForeignKey('Cart', verbose_name='Корзина', on_delete=models.CASCADE, related_name='related_products')
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
@@ -181,6 +200,9 @@ class CartProduct(models.Model):
 
 
 class Cart(models.Model):
+    """
+    cart model
+    """
     owner = models.ForeignKey('Client', null=True, verbose_name='Владелец', on_delete=models.CASCADE)
     clothes = models.ManyToManyField(CartProduct, blank=True, related_name='related_cart')
     total_products = models.PositiveIntegerField(default=0)
@@ -193,6 +215,9 @@ class Cart(models.Model):
 
 
 class Client(models.Model):
+    """
+    client model
+    """
     user = models.ForeignKey(User, verbose_name='', on_delete=models.CASCADE)
     phone = models.CharField(max_length=20, verbose_name='Номер телефона', null=True, blank=True)
     address = models.CharField(max_length=255, verbose_name='Адрес', null=True, blank=True)
@@ -203,6 +228,9 @@ class Client(models.Model):
 
 
 class Order(models.Model):
+    """
+    order model
+    """
     STATUS_NEW = 'new'
     STATUS_READY = 'is_ready'
     STATUS_IN_PROGRESS = 'in_progress'

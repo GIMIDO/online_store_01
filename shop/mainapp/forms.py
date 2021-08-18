@@ -3,7 +3,7 @@ from django.forms import ModelChoiceField
 from django.contrib.auth.models import User
 from .models import Order, Shoes, Pants, Category, Hoodie, Brand
 
-# форма Заказа
+# order form
 class OrderForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -17,7 +17,7 @@ class OrderForm(forms.ModelForm):
             'first_name', 'last_name', 'phone', 'address', 'buying_type', 'order_date', 'comment'
         )
 
-# форма Авторизации
+# login form
 class LoginForm(forms.ModelForm):
 
     password = forms.CharField(widget=forms.PasswordInput)
@@ -42,8 +42,9 @@ class LoginForm(forms.ModelForm):
                 raise forms.ValidationError('Неверный пароль')
         return self.cleaned_data
 
-# форма Регистрации
+# registration form
 class RegistrationForm(forms.ModelForm):
+
     confirm_password = forms.CharField(widget=forms.PasswordInput)
     password = forms.CharField(widget=forms.PasswordInput)
     phone = forms.CharField(required=False)
@@ -85,8 +86,9 @@ class RegistrationForm(forms.ModelForm):
             raise forms.ValidationError('Пароли не совпадают')
         return self.cleaned_data
 
-# форма добавление Обуви
+# shoe addition form
 class ShoesForm(forms.ModelForm):
+
     category = ModelChoiceField(Category.objects.filter(slug='shoes'))
 
     class Meta:
@@ -106,8 +108,9 @@ class ShoesForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-# форма добавления Брюки
+# pants addition form
 class PantsForm(forms.ModelForm):
+
     category = ModelChoiceField(Category.objects.filter(slug='pants'))
 
     class Meta:
@@ -127,8 +130,9 @@ class PantsForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-# форма добавления Худи
+# hoodie addition form
 class HoodieForm(forms.ModelForm):
+
     category = ModelChoiceField(Category.objects.filter(slug='hoodies'))
 
     class Meta:
@@ -148,7 +152,7 @@ class HoodieForm(forms.ModelForm):
     def clean(self):
         return self.cleaned_data
 
-# форма добавления Брэнда
+# brand addition form
 class BrandForm(forms.ModelForm):
 
     class Meta:

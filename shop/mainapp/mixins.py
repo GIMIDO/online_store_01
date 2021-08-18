@@ -5,8 +5,11 @@ from django.views.generic import View
 
 from .models import Category, Cart, Client, Hoodie, Shoes, Pants
 
-# миксин для вывода категорий
+
 class CategoryDetailMixin(SingleObjectMixin):
+    """
+    Mixin for displaying categories
+    """
     CATEGORY_SLUG_TO_CLOTHES_MODEL = {
         'shoes': Shoes,
         'hoodies': Hoodie,
@@ -24,8 +27,11 @@ class CategoryDetailMixin(SingleObjectMixin):
         context['categories'] = Category.objects.get_categories_for_nav()
         return context
 
-# миксин Корзины
+
 class CartMixin(View):
+    """
+    Mixin for displaying cart
+    """
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             client = Client.objects.filter(user=request.user).first()
@@ -41,10 +47,24 @@ class CartMixin(View):
         self.cart = cart
         return super().dispatch(request, *args, **kwargs)
 
-# миксин проверки на суперпользователя
-class AuthenticatedMixin(object):
+
+class AuthenticatedSuperuserMixin(object):
+    """
+    mixin will check if the user is superuser
+    """
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
             messages.add_message(request, messages.INFO, 'Недостаточно прав!')
             return redirect('/')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AuthenticatedUserMixin(object):
+    """
+    mixin will check if the user is logged in
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.add_message(request, messages.INFO, 'Сначала войдите в аккаунт!')
+            return redirect('login')
         return super().dispatch(request, *args, **kwargs)
